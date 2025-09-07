@@ -13,6 +13,8 @@ from .views import (
     UserListView,
     user_permissions,
     user_stats,
+    AdminUserListView,
+    AdminUserUpdateView,
 )
 
 app_name = 'authentication'
@@ -41,4 +43,8 @@ urlpatterns = [
     path('users/', UserListView.as_view(), name='user_list'),
     path('permissions/', user_permissions, name='user_permissions'),
     path('stats/', user_stats, name='user_stats'),
+    
+    # Endpoints de administración (solo admin)
+    path('admin/users/', AdminUserListView.as_view(), name='admin_user_list'),
+    path('admin/users/<int:id>/', AdminUserUpdateView.as_view(), name='admin_user_update'),
 ]

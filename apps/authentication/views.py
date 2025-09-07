@@ -336,3 +336,83 @@ def user_stats(request):
         stats['completed_tasks'] = user_tasks.filter(status='completed').count()
     
     return Response(stats)
+
+
+@extend_schema(tags=['Administración'], summary='Listar todos los usuarios (solo admin)')
+class AdminUserListView(generics.ListAPIView):
+    """
+    Vista para que los administradores listen todos los usuarios.
+    
+    Excluye al usuario actual de la lista.
+    Solo accesible para administradores.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """Return all users except current user."""
+        user = self.request.user
+        
+        # Solo administradores pueden acceder
+        if not user.is_admin():
+            return User.objects.none()
+        
+        # Excluir al usuario actual
+        return User.objects.exclude(id=user.id).order_by('first_name', 'last_name')
+
+
+@extend_schema(tags=['Administración'], summary='Actualizar usuario (solo admin)')
+class AdminUserUpdateView(generics.UpdateAPIView):
+    """
+    Vista para que los administradores actualicen cualquier usuario.
+    
+    Permite cambiar rol y estado activo/inactivo.
+    Solo accesible para administradores.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        """Return all users except current user."""
+        user = self.request.user
+        
+        # Solo administradores pueden acceder
+        if not user.is_admin():
+            return User.objects.none()
+        
+        # No permitir que se modifique a sí mismo
+        return User.objects.exclude(id=user.id)
+    
+    def update(self, request, *args, **kwargs):
+        """Update user with admin permissions."""
+        user = self.request.user
+        
+        # Verificar que es administrador
+        if not user.is_admin():
+            return Response(
+                {'error': 'No tienes permisos para realizar esta acción.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        instance = self.get_object()
+        
+        # No permitir que se modifique a sí mismo
+        if instance.id == user.id:
+            return Response(
+                {'error': 'No puedes modificar tu propio usuario.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validar campos permitidos
+        allowed_fields = ['role', 'is_active', 'first_name', 'last_name', 'email']
+        data = {k: v for k, v in request.data.items() if k in allowed_fields}
+        
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response({
+            'message': 'Usuario actualizado exitosamente.',
+            'user': serializer.data
+        })
