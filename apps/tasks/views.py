@@ -233,6 +233,50 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @extend_schema(tags=['Gestión de Tareas'], summary='Cambiar estado de tarea (cualquier usuario)')
+    @action(detail=True, methods=['patch'])
+    def change_status(self, request, pk=None):
+        """Change task status - accessible to any authenticated user."""
+        task = self.get_object()
+        
+        # Verificar que el usuario tenga acceso al proyecto
+        if not (request.user.is_superuser or 
+                ProjectAssignment.objects.filter(
+                    project=task.project,
+                    user=request.user
+                ).exists()):
+            return Response(
+                {'error': 'No tienes acceso a este proyecto.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = TaskStatusUpdateSerializer(
+            data=request.data,
+            context={'task': task, 'request': request}
+        )
+        
+        if serializer.is_valid():
+            old_status = task.status
+            task.status = serializer.validated_data['status']
+            task.save()
+            
+            # Crear notificación para el usuario asignado si es diferente
+            if task.assigned_to and task.assigned_to != request.user:
+                Notification.objects.create(
+                    recipient=task.assigned_to,
+                    sender=request.user,
+                    notification_type='task_status_changed',
+                    title=f'Estado de tarea actualizado',
+                    message=f'El estado de la tarea "{task.name}" cambió de {old_status} a {task.status}',
+                    related_object_type='task',
+                    related_object_id=task.id
+                )
+            
+            response_serializer = TaskSerializer(task)
+            return Response(response_serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     @extend_schema(tags=['Gestión de Tareas'], summary='Obtener mis tareas asignadas')
     @action(detail=False, methods=['get'])
     def my_tasks(self, request):
