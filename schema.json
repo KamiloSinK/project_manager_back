@@ -1,0 +1,3352 @@
+openapi: 3.0.3
+info:
+  title: Project Manager API
+  version: 1.0.0
+  description: API para la gestión de proyectos y tareas con endpoints organizados
+    por módulos funcionales
+paths:
+  /auth/change-password/:
+    post:
+      operationId: auth_change_password_create
+      description: Change user password.
+      summary: Cambiar contraseña
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Vista personalizada para obtener tokens JWT.
+
+        Permite a los usuarios autenticarse y obtener tokens de acceso y refresh.
+      summary: Obtener tokens JWT
+      tags:
+      - Autenticación y Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Logout user by blacklisting refresh token.
+      summary: Cerrar sesión
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: Send password reset email.
+      summary: Solicitar restablecimiento de contraseña
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /auth/password-reset-confirm/{uidb64}/{token}/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      description: Confirm password reset.
+      summary: Confirmar restablecimiento de contraseña
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: uidb64
+        schema:
+          type: string
+        required: true
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /auth/permissions/:
+    get:
+      operationId: auth_permissions_retrieve
+      description: Get current user permissions.
+      summary: Obtener permisos del usuario
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      description: |-
+        Vista del perfil de usuario.
+
+        Permite obtener y actualizar la información del perfil del usuario autenticado.
+      summary: Perfil de usuario
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_profile_update
+      description: |-
+        Vista del perfil de usuario.
+
+        Permite obtener y actualizar la información del perfil del usuario autenticado.
+      summary: Perfil de usuario
+      tags:
+      - Autenticación y Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+    patch:
+      operationId: auth_profile_partial_update
+      description: |-
+        Vista del perfil de usuario.
+
+        Permite obtener y actualizar la información del perfil del usuario autenticado.
+      summary: Perfil de usuario
+      tags:
+      - Autenticación y Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+  /auth/register/:
+    post:
+      operationId: auth_register_create
+      description: |-
+        Vista de registro de usuarios.
+
+        Permite crear nuevas cuentas de usuario y devuelve tokens JWT automáticamente.
+      summary: Registrar nuevo usuario
+      tags:
+      - Autenticación y Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /auth/stats/:
+    get:
+      operationId: auth_stats_retrieve
+      description: Get current user statistics.
+      summary: Obtener estadísticas del usuario
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Vista personalizada para renovar tokens JWT.
+
+        Permite renovar el token de acceso usando el token de refresh.
+      summary: Renovar token JWT
+      tags:
+      - Autenticación y Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /auth/token/verify/:
+    post:
+      operationId: auth_token_verify_create
+      description: |-
+        Takes a token and indicates if it is valid.  This view provides no
+        information about a token's fitness for a particular use.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenVerifyRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /auth/users/:
+    get:
+      operationId: auth_users_list
+      description: |-
+        Vista para listar usuarios.
+
+        Los administradores pueden ver todos los usuarios.
+        Los colaboradores pueden ver usuarios de sus proyectos.
+        Los visualizadores solo pueden verse a sí mismos.
+      summary: Listar usuarios
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - Autenticación y Usuarios
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+  /notifications/:
+    get:
+      operationId: notifications_list
+      description: List notifications with filtering options.
+      summary: Listar notificaciones
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationListList'
+          description: ''
+    post:
+      operationId: notifications_create
+      description: Create notification (admin only).
+      summary: Crear notificación
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCreate'
+          description: ''
+  /notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      description: |-
+        ViewSet para gestión de notificaciones.
+
+        Permite a los usuarios ver y gestionar sus notificaciones.
+        Los usuarios solo pueden acceder a sus propias notificaciones.
+      summary: Obtener notificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: notifications_update
+      description: |-
+        ViewSet para gestión de notificaciones.
+
+        Permite a los usuarios ver y gestionar sus notificaciones.
+        Los usuarios solo pueden acceder a sus propias notificaciones.
+      summary: Actualizar notificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationUpdate'
+          description: ''
+    patch:
+      operationId: notifications_partial_update
+      description: |-
+        ViewSet para gestión de notificaciones.
+
+        Permite a los usuarios ver y gestionar sus notificaciones.
+        Los usuarios solo pueden acceder a sus propias notificaciones.
+      summary: Actualización parcial de notificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationUpdate'
+          description: ''
+    delete:
+      operationId: notifications_destroy
+      description: |-
+        ViewSet para gestión de notificaciones.
+
+        Permite a los usuarios ver y gestionar sus notificaciones.
+        Los usuarios solo pueden acceder a sus propias notificaciones.
+      summary: Eliminar notificación
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /notifications/{id}/mark_as_read/:
+    patch:
+      operationId: notifications_mark_as_read_partial_update
+      description: Mark notification as read.
+      summary: Marcar notificación como leída
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/{id}/mark_as_unread/:
+    patch:
+      operationId: notifications_mark_as_unread_partial_update
+      description: Mark notification as unread.
+      summary: Marcar notificación como no leída
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/bulk_update/:
+    patch:
+      operationId: notifications_bulk_update_partial_update
+      description: Bulk update notifications.
+      summary: Actualización masiva de notificaciones
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/delete_old/:
+    delete:
+      operationId: notifications_delete_old_destroy
+      description: Delete notifications older than 30 days.
+      summary: Eliminar notificaciones antiguas
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /notifications/delete_read/:
+    delete:
+      operationId: notifications_delete_read_destroy
+      description: Delete all read notifications for the user.
+      summary: Eliminar notificaciones leídas
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /notifications/mark_all_as_read/:
+    patch:
+      operationId: notifications_mark_all_as_read_partial_update
+      description: Mark all user notifications as read.
+      summary: Marcar todas las notificaciones como leídas
+      tags:
+      - Sistema de Notificaciones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/recent/:
+    get:
+      operationId: notifications_recent_retrieve
+      description: Get recent notifications (last 10).
+      summary: Obtener notificaciones recientes
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/stats/:
+    get:
+      operationId: notifications_stats_retrieve
+      description: Get notification statistics.
+      summary: Obtener estadísticas de notificaciones
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /notifications/unread_count/:
+    get:
+      operationId: notifications_unread_count_retrieve
+      description: Get count of unread notifications.
+      summary: Obtener cantidad de notificaciones no leídas
+      tags:
+      - Sistema de Notificaciones
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /projects/:
+    get:
+      operationId: projects_list
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Listar proyectos
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectListList'
+          description: ''
+    post:
+      operationId: projects_create
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Crear proyecto
+      tags:
+      - Gestión de Proyectos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCreate'
+          description: ''
+  /projects/{id}/:
+    get:
+      operationId: projects_retrieve
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Obtener proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    put:
+      operationId: projects_update
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Actualizar proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectUpdate'
+          description: ''
+    patch:
+      operationId: projects_partial_update
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Actualización parcial de proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectUpdate'
+          description: ''
+    delete:
+      operationId: projects_destroy
+      description: |-
+        ViewSet para gestión de proyectos.
+
+        Proporciona operaciones CRUD completas para proyectos, incluyendo:
+        - Gestión de asignaciones de usuarios
+        - Estadísticas de proyectos
+        - Filtrado por estado y usuario
+      summary: Eliminar proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /projects/{id}/assign_user/:
+    post:
+      operationId: projects_assign_user_create
+      description: Assign user to project.
+      summary: Asignar usuario al proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProjectRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /projects/{id}/assignments/:
+    get:
+      operationId: projects_assignments_retrieve
+      description: Get project assignments.
+      summary: Obtener asignaciones del proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /projects/{id}/assignments/{assignment_id}/:
+    patch:
+      operationId: projects_assignments_partial_update
+      description: Update project assignment.
+      summary: Actualizar asignación de proyecto
+      parameters:
+      - in: path
+        name: assignment_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProjectRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+    delete:
+      operationId: projects_assignments_destroy
+      description: Remove user from project.
+      summary: Remover usuario del proyecto
+      parameters:
+      - in: path
+        name: assignment_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /projects/{id}/stats/:
+    get:
+      operationId: projects_stats_retrieve
+      description: Get project statistics.
+      summary: Obtener estadísticas del proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /projects/{id}/tasks/:
+    get:
+      operationId: projects_tasks_retrieve
+      description: Get project tasks.
+      summary: Obtener tareas del proyecto
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /projects/dashboard_stats/:
+    get:
+      operationId: projects_dashboard_stats_retrieve
+      description: Get dashboard statistics for projects.
+      summary: Obtener estadísticas del dashboard
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /projects/my_projects/:
+    get:
+      operationId: projects_my_projects_retrieve
+      description: Get current user's projects.
+      summary: Obtener mis proyectos
+      tags:
+      - Gestión de Proyectos
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+          description: ''
+  /tasks/:
+    get:
+      operationId: tasks_list
+      description: List tasks with filtering options.
+      summary: Listar tareas
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTaskListList'
+          description: ''
+    post:
+      operationId: tasks_create
+      description: |-
+        ViewSet para gestión de tareas.
+
+        Proporciona operaciones CRUD completas para tareas, incluyendo:
+        - Asignación de tareas a usuarios
+        - Actualización de estado
+        - Filtrado por proyecto, estado, prioridad y usuario
+        - Estadísticas de tareas
+      summary: Crear tarea
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCreate'
+          description: ''
+  /tasks/{id}/:
+    get:
+      operationId: tasks_retrieve
+      description: |-
+        ViewSet para gestión de tareas.
+
+        Proporciona operaciones CRUD completas para tareas, incluyendo:
+        - Asignación de tareas a usuarios
+        - Actualización de estado
+        - Filtrado por proyecto, estado, prioridad y usuario
+        - Estadísticas de tareas
+      summary: Obtener tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    put:
+      operationId: tasks_update
+      description: |-
+        ViewSet para gestión de tareas.
+
+        Proporciona operaciones CRUD completas para tareas, incluyendo:
+        - Asignación de tareas a usuarios
+        - Actualización de estado
+        - Filtrado por proyecto, estado, prioridad y usuario
+        - Estadísticas de tareas
+      summary: Actualizar tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskUpdate'
+          description: ''
+    patch:
+      operationId: tasks_partial_update
+      description: |-
+        ViewSet para gestión de tareas.
+
+        Proporciona operaciones CRUD completas para tareas, incluyendo:
+        - Asignación de tareas a usuarios
+        - Actualización de estado
+        - Filtrado por proyecto, estado, prioridad y usuario
+        - Estadísticas de tareas
+      summary: Actualización parcial de tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskUpdate'
+          description: ''
+    delete:
+      operationId: tasks_destroy
+      description: |-
+        ViewSet para gestión de tareas.
+
+        Proporciona operaciones CRUD completas para tareas, incluyendo:
+        - Asignación de tareas a usuarios
+        - Actualización de estado
+        - Filtrado por proyecto, estado, prioridad y usuario
+        - Estadísticas de tareas
+      summary: Eliminar tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /tasks/{id}/add_comment/:
+    post:
+      operationId: tasks_add_comment_create
+      description: Add comment to task.
+      summary: Agregar comentario a la tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/{id}/assign/:
+    patch:
+      operationId: tasks_assign_partial_update
+      description: Assign task to user.
+      summary: Asignar tarea a usuario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/{id}/comments/:
+    get:
+      operationId: tasks_comments_retrieve_2
+      description: Get task comments.
+      summary: Obtener comentarios de la tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/{id}/update_status/:
+    patch:
+      operationId: tasks_update_status_partial_update
+      description: Update task status.
+      summary: Actualizar estado de la tarea
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/comments/:
+    get:
+      operationId: tasks_comments_list
+      description: List comments with filtering by task.
+      summary: Listar comentarios
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+    post:
+      operationId: tasks_comments_create
+      description: |-
+        ViewSet para gestión de comentarios de tareas.
+
+        Permite a los usuarios agregar, editar y eliminar comentarios en tareas.
+        Solo el autor del comentario puede editarlo o eliminarlo.
+      summary: Crear comentario
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /tasks/comments/{id}/:
+    get:
+      operationId: tasks_comments_retrieve
+      description: |-
+        ViewSet para gestión de comentarios de tareas.
+
+        Permite a los usuarios agregar, editar y eliminar comentarios en tareas.
+        Solo el autor del comentario puede editarlo o eliminarlo.
+      summary: Obtener comentario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: tasks_comments_update
+      description: |-
+        ViewSet para gestión de comentarios de tareas.
+
+        Permite a los usuarios agregar, editar y eliminar comentarios en tareas.
+        Solo el autor del comentario puede editarlo o eliminarlo.
+      summary: Actualizar comentario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentUpdate'
+          description: ''
+    patch:
+      operationId: tasks_comments_partial_update
+      description: |-
+        ViewSet para gestión de comentarios de tareas.
+
+        Permite a los usuarios agregar, editar y eliminar comentarios en tareas.
+        Solo el autor del comentario puede editarlo o eliminarlo.
+      summary: Actualización parcial de comentario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentUpdate'
+          description: ''
+    delete:
+      operationId: tasks_comments_destroy
+      description: |-
+        ViewSet para gestión de comentarios de tareas.
+
+        Permite a los usuarios agregar, editar y eliminar comentarios en tareas.
+        Solo el autor del comentario puede editarlo o eliminarlo.
+      summary: Eliminar comentario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /tasks/dashboard_stats/:
+    get:
+      operationId: tasks_dashboard_stats_retrieve
+      description: Get dashboard statistics for tasks.
+      summary: Obtener estadísticas del dashboard de tareas
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /tasks/my_tasks/:
+    get:
+      operationId: tasks_my_tasks_retrieve
+      description: Get current user's assigned tasks.
+      summary: Obtener mis tareas asignadas
+      tags:
+      - Gestión de Tareas
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+components:
+  schemas:
+    Comment:
+      type: object
+      description: Serializer for task comments.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        content:
+          type: string
+          description: Contenido del comentario
+        author:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - content
+      - created_at
+      - id
+      - updated_at
+    CommentRequest:
+      type: object
+      description: Serializer for task comments.
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: Contenido del comentario
+      required:
+      - content
+    CommentUpdate:
+      type: object
+      description: Serializer for updating comments.
+      properties:
+        content:
+          type: string
+          description: Contenido del comentario
+      required:
+      - content
+    CommentUpdateRequest:
+      type: object
+      description: Serializer for updating comments.
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: Contenido del comentario
+      required:
+      - content
+    CustomTokenObtainPairRequest:
+      type: object
+      description: Custom JWT token serializer that includes user data.
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    Notification:
+      type: object
+      description: Serializer for notifications.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        recipient:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        sender:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Tipo de notificación
+
+            * `task_assigned` - Tarea Asignada
+            * `task_completed` - Tarea Completada
+            * `task_overdue` - Tarea Vencida
+            * `project_assigned` - Proyecto Asignado
+            * `project_completed` - Proyecto Completado
+            * `comment_added` - Comentario Agregado
+            * `deadline_reminder` - Recordatorio de Fecha Límite
+            * `general` - General
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la notificación
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        title:
+          type: string
+          description: Título de la notificación
+          maxLength: 200
+        message:
+          type: string
+          description: Mensaje de la notificación
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha y hora en que se leyó la notificación
+        related_project:
+          type: integer
+          nullable: true
+          description: Proyecto relacionado (opcional)
+        related_task:
+          type: integer
+          nullable: true
+          description: Tarea relacionada (opcional)
+        extra_data:
+          description: Datos adicionales en formato JSON
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        time_since:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - recipient
+      - sender
+      - time_since
+      - title
+      - updated_at
+    NotificationCreate:
+      type: object
+      description: Serializer for creating notifications.
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Tipo de notificación
+
+            * `task_assigned` - Tarea Asignada
+            * `task_completed` - Tarea Completada
+            * `task_overdue` - Tarea Vencida
+            * `project_assigned` - Proyecto Asignado
+            * `project_completed` - Proyecto Completado
+            * `comment_added` - Comentario Agregado
+            * `deadline_reminder` - Recordatorio de Fecha Límite
+            * `general` - General
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la notificación
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        title:
+          type: string
+          description: Título de la notificación
+          maxLength: 200
+        message:
+          type: string
+          description: Mensaje de la notificación
+        extra_data:
+          description: Datos adicionales en formato JSON
+      required:
+      - message
+      - title
+    NotificationCreateRequest:
+      type: object
+      description: Serializer for creating notifications.
+      properties:
+        recipient_id:
+          type: integer
+          writeOnly: true
+        sender_id:
+          type: integer
+          writeOnly: true
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Tipo de notificación
+
+            * `task_assigned` - Tarea Asignada
+            * `task_completed` - Tarea Completada
+            * `task_overdue` - Tarea Vencida
+            * `project_assigned` - Proyecto Asignado
+            * `project_completed` - Proyecto Completado
+            * `comment_added` - Comentario Agregado
+            * `deadline_reminder` - Recordatorio de Fecha Límite
+            * `general` - General
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la notificación
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        title:
+          type: string
+          minLength: 1
+          description: Título de la notificación
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          description: Mensaje de la notificación
+        related_project_id:
+          type: integer
+          writeOnly: true
+        related_task_id:
+          type: integer
+          writeOnly: true
+        extra_data:
+          description: Datos adicionales en formato JSON
+      required:
+      - message
+      - recipient_id
+      - title
+    NotificationList:
+      type: object
+      description: Simplified serializer for notification lists.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sender_name:
+          type: string
+          readOnly: true
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Tipo de notificación
+
+            * `task_assigned` - Tarea Asignada
+            * `task_completed` - Tarea Completada
+            * `task_overdue` - Tarea Vencida
+            * `project_assigned` - Proyecto Asignado
+            * `project_completed` - Proyecto Completado
+            * `comment_added` - Comentario Agregado
+            * `deadline_reminder` - Recordatorio de Fecha Límite
+            * `general` - General
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la notificación
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        title:
+          type: string
+          description: Título de la notificación
+          maxLength: 200
+        message:
+          type: string
+          description: Mensaje de la notificación
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        time_since:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - sender_name
+      - time_since
+      - title
+    NotificationUpdate:
+      type: object
+      description: Serializer for updating notifications (mainly for marking as read).
+      properties:
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+    NotificationUpdateRequest:
+      type: object
+      description: Serializer for updating notifications (mainly for marking as read).
+      properties:
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+    PaginatedCommentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedNotificationListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationList'
+    PaginatedProjectListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectList'
+    PaginatedTaskListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskList'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PatchedCommentUpdateRequest:
+      type: object
+      description: Serializer for updating comments.
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: Contenido del comentario
+    PatchedNotificationRequest:
+      type: object
+      description: Serializer for notifications.
+      properties:
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          description: |-
+            Tipo de notificación
+
+            * `task_assigned` - Tarea Asignada
+            * `task_completed` - Tarea Completada
+            * `task_overdue` - Tarea Vencida
+            * `project_assigned` - Proyecto Asignado
+            * `project_completed` - Proyecto Completado
+            * `comment_added` - Comentario Agregado
+            * `deadline_reminder` - Recordatorio de Fecha Límite
+            * `general` - General
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la notificación
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        title:
+          type: string
+          minLength: 1
+          description: Título de la notificación
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          description: Mensaje de la notificación
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha y hora en que se leyó la notificación
+        related_project:
+          type: integer
+          nullable: true
+          description: Proyecto relacionado (opcional)
+        related_task:
+          type: integer
+          nullable: true
+          description: Tarea relacionada (opcional)
+        extra_data:
+          description: Datos adicionales en formato JSON
+    PatchedNotificationUpdateRequest:
+      type: object
+      description: Serializer for updating notifications (mainly for marking as read).
+      properties:
+        is_read:
+          type: boolean
+          description: Indica si la notificación ha sido leída
+    PatchedProjectRequest:
+      type: object
+      description: Serializer for projects.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+    PatchedProjectUpdateRequest:
+      type: object
+      description: Serializer for updating projects.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+    PatchedTaskRequest:
+      type: object
+      description: Serializer for tasks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        assigned_to_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+    PatchedTaskUpdateRequest:
+      type: object
+      description: Serializer for updating tasks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        assigned_to_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+    PatchedUserUpdateRequest:
+      type: object
+      description: Serializer for updating user profile.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+    PriorityEnum:
+      enum:
+      - low
+      - medium
+      - high
+      - urgent
+      type: string
+      description: |-
+        * `low` - Baja
+        * `medium` - Media
+        * `high` - Alta
+        * `urgent` - Urgente
+    Project:
+      type: object
+      description: Serializer for projects.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectAssignment'
+          readOnly: true
+        progress_percentage:
+          type: string
+          readOnly: true
+        is_overdue:
+          type: string
+          readOnly: true
+        days_remaining:
+          type: string
+          readOnly: true
+      required:
+      - assignments
+      - created_at
+      - created_by
+      - days_remaining
+      - end_date
+      - id
+      - is_overdue
+      - name
+      - progress_percentage
+      - start_date
+      - updated_at
+    ProjectAssignment:
+      type: object
+      description: Serializer for project assignments.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_by:
+          type: integer
+          readOnly: true
+          description: Usuario que realizó la asignación
+      required:
+      - assigned_at
+      - assigned_by
+      - id
+      - user
+    ProjectAssignmentRequest:
+      type: object
+      description: Serializer for project assignments.
+      properties:
+        user_id:
+          type: integer
+          writeOnly: true
+      required:
+      - user_id
+    ProjectCreate:
+      type: object
+      description: Serializer for creating projects with assignments.
+      properties:
+        name:
+          type: string
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+      required:
+      - end_date
+      - name
+      - start_date
+    ProjectCreateRequest:
+      type: object
+      description: Serializer for creating projects with assignments.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+        assignments:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          writeOnly: true
+          description: 'Lista de asignaciones: [{''user_id'': 1}, ...]'
+      required:
+      - end_date
+      - name
+      - start_date
+    ProjectList:
+      type: object
+      description: Simplified serializer for project lists.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+        created_by:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        progress_percentage:
+          type: string
+          readOnly: true
+        is_overdue:
+          type: string
+          readOnly: true
+        days_remaining:
+          type: string
+          readOnly: true
+        total_tasks:
+          type: string
+          readOnly: true
+        completed_tasks:
+          type: string
+          readOnly: true
+      required:
+      - completed_tasks
+      - created_at
+      - created_by
+      - days_remaining
+      - end_date
+      - id
+      - is_overdue
+      - name
+      - progress_percentage
+      - start_date
+      - total_tasks
+    ProjectRequest:
+      type: object
+      description: Serializer for projects.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+      required:
+      - end_date
+      - name
+      - start_date
+    ProjectUpdate:
+      type: object
+      description: Serializer for updating projects.
+      properties:
+        name:
+          type: string
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+      required:
+      - end_date
+      - name
+      - start_date
+    ProjectUpdateRequest:
+      type: object
+      description: Serializer for updating projects.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre del proyecto
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada del proyecto
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusBedEnum'
+          description: |-
+            Estado actual del proyecto
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+            * `cancelled` - Cancelado
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio del proyecto
+        end_date:
+          type: string
+          format: date
+          description: Fecha de finalización del proyecto
+      required:
+      - end_date
+      - name
+      - start_date
+    RoleEnum:
+      enum:
+      - admin
+      - collaborator
+      - viewer
+      type: string
+      description: |-
+        * `admin` - Administrador
+        * `collaborator` - Colaborador
+        * `viewer` - Visor
+    Status35aEnum:
+      enum:
+      - pending
+      - in_progress
+      - completed
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `in_progress` - En Progreso
+        * `completed` - Completado
+    StatusBedEnum:
+      enum:
+      - pending
+      - in_progress
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pendiente
+        * `in_progress` - En Progreso
+        * `completed` - Completado
+        * `cancelled` - Cancelado
+    Task:
+      type: object
+      description: Serializer for tasks.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        project_name:
+          type: string
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        assigned_to:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+          readOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+        is_overdue:
+          type: string
+          readOnly: true
+        days_remaining:
+          type: string
+          readOnly: true
+      required:
+      - assigned_to
+      - comments
+      - comments_count
+      - created_at
+      - created_by
+      - days_remaining
+      - due_date
+      - id
+      - is_overdue
+      - name
+      - project
+      - project_name
+      - updated_at
+    TaskCreate:
+      type: object
+      description: Serializer for creating tasks.
+      properties:
+        name:
+          type: string
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        assigned_to_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+      required:
+      - due_date
+      - name
+      - project
+    TaskCreateRequest:
+      type: object
+      description: Serializer for creating tasks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        assigned_to_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+      required:
+      - due_date
+      - name
+      - project
+    TaskList:
+      type: object
+      description: Simplified serializer for task lists.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        project_name:
+          type: string
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        assigned_to:
+          type: string
+          readOnly: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+        is_overdue:
+          type: string
+          readOnly: true
+        days_remaining:
+          type: string
+          readOnly: true
+      required:
+      - assigned_to
+      - comments_count
+      - created_at
+      - created_by
+      - days_remaining
+      - due_date
+      - id
+      - is_overdue
+      - name
+      - project
+      - project_name
+    TaskRequest:
+      type: object
+      description: Serializer for tasks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        project:
+          type: integer
+          description: Proyecto al que pertenece la tarea
+        assigned_to_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+      required:
+      - due_date
+      - name
+      - project
+    TaskUpdate:
+      type: object
+      description: Serializer for updating tasks.
+      properties:
+        name:
+          type: string
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        assigned_to_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+      required:
+      - due_date
+      - name
+    TaskUpdateRequest:
+      type: object
+      description: Serializer for updating tasks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Nombre de la tarea
+          maxLength: 200
+        description:
+          type: string
+          description: Descripción detallada de la tarea
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status35aEnum'
+          description: |-
+            Estado actual de la tarea
+
+            * `pending` - Pendiente
+            * `in_progress` - En Progreso
+            * `completed` - Completado
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          description: |-
+            Prioridad de la tarea
+
+            * `low` - Baja
+            * `medium` - Media
+            * `high` - Alta
+            * `urgent` - Urgente
+        assigned_to_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          description: Fecha y hora de vencimiento de la tarea
+      required:
+      - due_date
+      - name
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TokenVerifyRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - token
+    TypeEnum:
+      enum:
+      - task_assigned
+      - task_completed
+      - task_overdue
+      - project_assigned
+      - project_completed
+      - comment_added
+      - deadline_reminder
+      - general
+      type: string
+      description: |-
+        * `task_assigned` - Tarea Asignada
+        * `task_completed` - Tarea Completada
+        * `task_overdue` - Tarea Vencida
+        * `project_assigned` - Proyecto Asignado
+        * `project_completed` - Proyecto Completado
+        * `comment_added` - Comentario Agregado
+        * `deadline_reminder` - Recordatorio de Fecha Límite
+        * `general` - General
+    User:
+      type: object
+      description: Serializer for user data.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        username:
+          type: string
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `admin` - Administrador
+            * `collaborator` - Colaborador
+            * `viewer` - Visor
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - updated_at
+      - username
+    UserRegistration:
+      type: object
+      description: Serializer for user registration.
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        username:
+          type: string
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `admin` - Administrador
+            * `collaborator` - Colaborador
+            * `viewer` - Visor
+      required:
+      - email
+      - first_name
+      - last_name
+      - username
+    UserRegistrationRequest:
+      type: object
+      description: Serializer for user registration.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirm:
+          type: string
+          writeOnly: true
+          minLength: 1
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `admin` - Administrador
+            * `collaborator` - Colaborador
+            * `viewer` - Visor
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - password_confirm
+      - username
+    UserRequest:
+      type: object
+      description: Serializer for user data.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          description: |-
+            Rol del usuario en el sistema
+
+            * `admin` - Administrador
+            * `collaborator` - Colaborador
+            * `viewer` - Visor
+        is_active:
+          type: boolean
+      required:
+      - email
+      - first_name
+      - last_name
+      - username
+    UserUpdate:
+      type: object
+      description: Serializer for updating user profile.
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        username:
+          type: string
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+      required:
+      - first_name
+      - last_name
+      - username
+    UserUpdateRequest:
+      type: object
+      description: Serializer for updating user profile.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        username:
+          type: string
+          minLength: 1
+          title: Nombre de usuario
+          description: 'Requerido. 150 carácteres como máximo. Únicamente letras,
+            dígitos y @/./+/-/_ '
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+      required:
+      - first_name
+      - last_name
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Autenticación y Usuarios
+  description: Gestión completa de autenticación, registro, perfiles de usuario y
+    permisos del sistema
+- name: Gestión de Proyectos
+  description: Operaciones CRUD de proyectos, asignaciones de usuarios, estadísticas
+    y dashboard de proyectos
+- name: Gestión de Tareas
+  description: Administración de tareas, asignaciones, cambios de estado, comentarios
+    y estadísticas de tareas
+- name: Sistema de Notificaciones
+  description: Gestión de notificaciones del sistema para usuarios y eventos del proyecto
